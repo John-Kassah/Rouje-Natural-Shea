@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const userRegistrationValidator = Joi.object({
-    userName: Joi.string().required().min(3),
+    fullName: Joi.string().required().min(3),
     email: Joi.string().email().required(),
     password: Joi.string().required().min(8),
     confirmPassword: Joi.string().required().valid(Joi.ref('password')).messages({
@@ -10,8 +10,7 @@ export const userRegistrationValidator = Joi.object({
 }).options({ abortEarly: false });
 
 export const userLoginValidator = Joi.object({
-    userName: Joi.string(),
-    email: Joi.string(),
+    email: Joi.string().required(),
     password: Joi.string().required(),
 });
 

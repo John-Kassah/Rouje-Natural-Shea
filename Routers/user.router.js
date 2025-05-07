@@ -14,7 +14,7 @@ userRouter.get('/getAllUsers/:id', authenticator, authorizationOfRole('admin'), 
 userRouter.get('/login', loginUser)
 
 // Mount get request on */addUser* endpoint
-userRouter.post('/addUser', singleImageUploader, registerUser);
+userRouter.post('/addUser', registerUser);
 
 // Mount delete request on */deleteUser* endpoint
 userRouter.delete('/deleteUser/:id', authenticator, authorizationOfRole('user', 'admin'), deleteUser);

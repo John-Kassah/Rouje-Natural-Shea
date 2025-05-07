@@ -25,7 +25,7 @@ export const loginUser = async (req, res) => {
 
     // const { id } = req.params; is no longer needed... can be deleted for this project
     try {
-        // Validate the request body using the userRegistrationValidator
+        // Validate the request body using the userLoginValidator
         const {error, value} = userLoginValidator.validate(req.body)
         if (error) {
             return res.status(400).json(`Kindly check the request body for the following errors: ${error.details.map(err => err.message).join(', ')}`);
@@ -41,13 +41,13 @@ export const loginUser = async (req, res) => {
         // Check if a user with the specified id does not exist
         const user = await userModel.findOne({
             $or: [
-                { userName: value.userName },
+                { fullName: value.fullName },
                 { email: value.email }
             ]
     });
 
         if (!user) {
-            return res.status(404).send(`There is no user with the info: ${value.userName || value.email}`);
+            return res.status(404).send(`There is no user with the info: ${value.fullName || value.email}`);
         }
 
         // Check if the password is correct using the instance method *comparePassword* that we created in the user.model.js file to compare the password entered by the user with the hashed password in the database
@@ -63,7 +63,7 @@ export const loginUser = async (req, res) => {
   
         //  Generate a JWT token for the user
         //  The token will be used to authenticate the user in subsequent requests becaused it will be sent to the client and saved in the local storage of the browser or in the cookies of the browser
-        const token = generateToken(user.id);
+        const token = generateauthToken(user.id);
         res.status(200).json({ message: "The user was retrieved successfully", data: userWithoutPassword, token: token });
     } catch (error) {   
         console.log(`This error was thrown in an attempt to retrieve a user with the specified id: ${error.message}`);
@@ -85,11 +85,11 @@ export const registerUser = async (req, res) => {
         const reqUserInfo = req.body;
 
         // Extract userName from the request body for testing purposes
-        const { userName } = req.body;
-        console.log(`userName: ${userName}`)
+        const { fullName } = req.body;
+        console.log(`fullName: ${fullName}`)
 
         const token = crypto.randomBytes(32).toString('hex'); // Generate a random token for email verification
-        reqUserInfo.verificationToken = token; // Add the token to the user info object that will be saved to the database so we can compare to it leter when the link token is extracted from the request query from the email verification link that was sent to the user
+        reqUserInfo.verificationToken = token; // Add the token to the user info object that will be saved to the database so we can compare to it later when the link token is extracted from the request query from the email verification link that was sent to the user
 
         // Create a new user that follows the schema model definition
 
@@ -98,20 +98,20 @@ export const registerUser = async (req, res) => {
         // Check if the user already exists using the interface method *findOne* thats made possible by the userModel interface we created in the user.model.js file
         if (await userModel.findOne({
             $or: [
-                { userName: value.userName },
+                { fullName: value.fullName },
                 { email: value.email } 
             ]
         })) {
-            return res.send(`User: ${userName} already exists`)
+            return res.send(`User: ${fullName} already exists`)
         }
 
         // Check if the image was uploaded successfully and is present in the request body
         // If the image was uploaded successfully, it will be present in the request body as req.file or req.files depending on the type of upload you are doing, single or multiple.
-        if (!req.file) {
-            return res.status(400).json({ error: 'Image upload failed' });
-        }
+    //     if (!req.file) {
+    //         return res.status(400).json({ error: 'Image upload failed' });
+    //     }
 
-    reqUserInfo.imageUrl = req.file.path; // Get the image URL from the request body and add it to the user info object that will be saved to the database.
+    // reqUserInfo.imageUrl = req.file.path; // Get the image URL from the request body and add it to the user info object that will be saved to the database.
 
         // Save the user info to the database once the user has been verified to not exist
         await modelUser.save();
@@ -120,7 +120,7 @@ export const registerUser = async (req, res) => {
         await sendVerificationMail(modelUser.email, token, res);
         // The sendVerificationMail function will send a verification email to the user with a link to verify their email address. The link will contain the token that was generated when the user registered, in its query.
 
-        // Generate a JWT token for the user so as they are logged in right after registration, htey can access authentication protected routes
+        // Generate a JWT token for the user so as they are logged in right after registration, they can access authentication protected routes
         const authenticationToken = generateauthToken(modelUser._id);
 
         res.status(201).json({ message: "User was added successfully", data: modelUser, token: authenticationToken });

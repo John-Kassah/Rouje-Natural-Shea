@@ -3,10 +3,9 @@ import bcrypt from "bcrypt";
 import normalize from "normalize-mongoose";
 
 const userSchema = new mongoose.Schema({
-    userName: {
+    fullName: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },  
     email: {
         type: String,
@@ -16,9 +15,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    imageUrl: {
-        type: String,
     },
     role: {
         type: String,
