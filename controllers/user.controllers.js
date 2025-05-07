@@ -140,9 +140,9 @@ export const deleteUser = async (req, res) => {
         if (!user) {
             return res.send(`User with ID: ${id} does not exist`);
         }
-        const { userName, email } = user;
+        const { fullName, email } = user;
         await userModel.findByIdAndDelete(id);
-        res.status(200).json({ message: `User with username: ${userName} and email: ${email} was deleted successfully` });
+        res.status(200).json({ message: `User with fullNmae: ${fullName} and email: ${email} was deleted successfully` });
     } catch (error) {
         console.log(`This error was thrown in an attempt to delete user info: ${error.message}`);
         res.status(500).json({ message: `This error was thrown in an attempt to delete user info: ${error.message}` });
