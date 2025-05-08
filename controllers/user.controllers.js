@@ -102,7 +102,7 @@ export const registerUser = async (req, res) => {
                 { email: value.email } 
             ]
         })) {
-            return res.send(`User: ${fullName} already exists`)
+            return res.send(`User with email: ${email} already exists`)
         }
 
         // Check if the image was uploaded successfully and is present in the request body
