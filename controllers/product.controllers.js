@@ -39,3 +39,24 @@ export const addProduct = async (req, res) => {
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+
+export async function getProducts(req, res) {
+  try {
+    // 1. Extract raw query parameters
+    const { category } = req.query;
+
+    // 2. Build the MongoDB filter object. We do this by checking if the target filter field is present after atempting to extract it from req.query. 
+    //If it is available, it will have a truthy value else a falsy one
+    const filters = {};
+    if (category) filters.category = category;
+
+    // 6. Fetch filtered products
+    const filteredProducts = await Product.find(filters)
+    .sort({ createdAt: -1 })     
+
+    // 7. Send a JSON response back to the client
+    res.status(201).json({ message: "Products were retrieved successfully", data: filteredProducts });
+  } catch (error) {
+        res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
+    }
+}
