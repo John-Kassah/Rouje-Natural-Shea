@@ -40,7 +40,7 @@ export const addProduct = async (req, res) => {
     }
 };
 
-export async function getProducts(req, res) {
+export const getProducts = async(req, res) => {
   try {
     // 1. Extract raw query parameters
     const { category } = req.query;
