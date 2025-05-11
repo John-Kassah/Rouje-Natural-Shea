@@ -3,6 +3,7 @@ import userRouter from './Routers/user.router.js';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import cors from 'cors';
+import productRouter from './Routers/product.router.js';
 
 
 dotenv.config();
@@ -31,4 +32,5 @@ app.listen(port, ( ) => {
 
 // Enable yout server to use the *useRouter* middleware by mounting the router on the */users* endpoint
 app.use('/', userRouter); 
+app.use('/',productRouter)
 

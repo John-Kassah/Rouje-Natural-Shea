@@ -1,7 +1,7 @@
 import express from 'express';
 import { registerUser, deleteUser, getAllUsers, updateUser, loginUser, verifyEmail } from '../controllers/user.controllers.js';
 import { authenticator, authorizationOfRole } from '../middlewares/auth.js';
-import { singleImageUploader } from '../utils/singleImageUploader.js';
+
 
 
 // Create an express router
