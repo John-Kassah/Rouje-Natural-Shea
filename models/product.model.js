@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
     category: {
         type: String,
         enum: ['Skin', 'Hair', 'Clensers', 'Natural Oils', 'Other'],
+        required: true,
         default: 'Other'
     },
     price: {
@@ -30,5 +31,10 @@ const productSchema = new mongoose.Schema({
         type: String
     }]
 })
+
+// Compound index: category ascending. We could have added more index fileds after a "," and with thesame after each addition.
+//The MongoDB query planner will use the index to speed up a read request if the query filter contains a field equal to the index field for the index created.
+productSchema.index({ category: 1 });
+
 
 export const productModel = new mongoose.model('Product', productSchema);
