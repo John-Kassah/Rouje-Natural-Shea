@@ -22,6 +22,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    newArrival:{
+        type: Boolean,
+        default: 'false'
+    },
     productImageUrls: [{
         type: String
     }]
