@@ -34,7 +34,7 @@ export const authenticator = async (req, res, next) => {
 }
 
 export const authorizationOfRole = (...allowedRoles) => {
-    return (req, res, next) => {
+   return  (req, res, next) => { 
         // Check if the user has the required role by comparing the user role that we saved in  with the allowed roles upon calling this middleware in the designated router
         const userRole = req.user.role // this is the role of the user that was extracted from the token and saved in the req.user object in the authenticator middleware
         if (!allowedRoles.includes(userRole)) {
