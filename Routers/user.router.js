@@ -8,7 +8,7 @@ import { authenticator, authorizationOfRole } from '../middlewares/auth.js';
 const userRouter = express.Router();
 
 // Mount get request on */getAllUsers* endpoint
-userRouter.get('/getAllUsers/:id', authenticator, authorizationOfRole('admin'), getAllUsers);
+userRouter.get('/getAllUsers', authenticator, authorizationOfRole('admin'), getAllUsers);
 
 /* Mount get request on *get-A-UserWith-Id* endpoint */
 userRouter.get('/login', loginUser)

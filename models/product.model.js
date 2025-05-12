@@ -29,7 +29,11 @@ const productSchema = new mongoose.Schema({
     },
     productImageUrls: [{
         type: String
-    }]
+    }],
+    dateCreated: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 // Compound index: category ascending. We could have added more index fileds after a "," and with thesame after each addition.

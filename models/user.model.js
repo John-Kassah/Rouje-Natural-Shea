@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    dateCreated: {
+        type: Date,
+        default: Date.now
     }
 }, { timestamps: true,
     toJSON: {

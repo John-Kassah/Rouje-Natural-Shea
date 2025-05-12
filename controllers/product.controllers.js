@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import { productModel } from "../models/product.model.js";
 import { addProductValidator } from "../validators/product.validator.js";
+
 
 export const addProduct = async (req, res) => {
 
@@ -51,12 +53,67 @@ export const getProducts = async(req, res) => {
     if (category) filters.category = category;
 
     // 6. Fetch filtered products
-    const filteredProducts = await Product.find(filters)
-    .sort({ createdAt: -1 })     
+    const filteredProducts = await productModel.find(filters)
+    .sort({ createdAt: -1 }) //sort by newest first
 
     // 7. Send a JSON response back to the client
-    res.status(201).json({ message: "Products were retrieved successfully", data: filteredProducts });
+    res.status(200).json({ message: "Products were retrieved successfully", data: filteredProducts });
   } catch (error) {
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 }
+
+export const updateProductInfo = async (req, res) => {
+    const id = req.params.productId; // this is the id of the user that was extracted from the token and saved in the req.user object in the authenticator middleware
+    // const { id } = req.params; is no longer needed... can be deleted for this project
+    const newProductUpdates = req.body;
+
+      // Check if the id is not a valid mongoose id that fits a valid ObjectId
+    //   Do this before querying the database to save on resources and avoid an error called "CastError" which means that the id is not a valid ObjectId or is not in the correct format ot type
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).send(`This is not a valid user ID: ${id}`);     
+    }
+    //  Now this will not throw a CastError because the id is a valid ObjectId
+    const currentProductData = await productModel.findById(id);
+
+    // Check if the user with the specified id does not exist
+    if (!(currentProductData)) {
+        return res.status(404).send(`There is no product with this ID: ${id}`);   
+    }
+
+    // check to make sure that the changes being requested are not already present in the document in the DB
+    if (Object.keys(newProductUpdates)
+        .every( updateKeys => newProductUpdates[updateKeys] === currentProductData[updateKeys])) {
+        return res.status(400).send(`The user info you are trying to update is already present in the database`);
+    }
+
+    // If the control flow reaches this point, it means that the user info is not already present in the database
+    // and the id specified is valid and the user exists in the database
+    // and the user info can be updated
+    try {
+         const updatedProduct = await productModel
+        .findByIdAndUpdate(id, newProductUpdates, { new: true });
+        res.status(201).json({message: `The update was a success. This is the updated product: `, data: updatedProduct});
+    } catch (error) {
+        res.status(500).json({message: `This error was thrown in an attempt to update user info: ${error.message}`});
+    }
+};
+
+export const deleteProduct = async (req, res) => {
+    const id = req.params.productId; // get the ID of the document to be deleted from the id parameter sent in the request url
+    try {
+
+        // Check if a user with the specified id does not exist
+        const product = await productModel.findById(id);
+        if (!product) {
+            return res.send(`Product with ID: ${id} does not exist`);
+        }
+
+        const deletedProduct = await productModel.findByIdAndDelete(id);
+        res.status(200).json({ message: `Product with ID: ${id} was deleted successfully`, data: deletedProduct });
+        
+    } catch (error) {
+        console.log(`This error was thrown in an attempt to delete product info: ${error.message}`);
+        res.status(500).json({ message: `This error was thrown in an attempt to delete product info: ${error.message}` });
+    }
+};
