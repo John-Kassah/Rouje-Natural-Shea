@@ -8,7 +8,7 @@ const productRouter = express.Router();
 
 productRouter.post('/addProduct', authenticator, authorizationOfRole('admin'), parser.array('images', 4), addProduct);
 
-productRouter.get('/getProducts', authenticator, getProducts)
+productRouter.get('/getProducts', getProducts)
 
 productRouter.patch('/updateProductInfo/:productId', authenticator, authorizationOfRole('admin'), updateProductInfo)
 
