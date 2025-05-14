@@ -63,6 +63,23 @@ export const getProducts = async(req, res) => {
     }
 }
 
+export const getSingleProductById = async (req, res) => {
+    const productId = req.params.productId
+    try {
+        const singleProduct = await productModel.findById(productId)
+            .select('-__v -_id') // Exclude these fields from the product;
+
+        if (!singleProduct) {
+            return res.status(404).json({ message: `This product was not found` });
+        }
+
+        return res.status(200).json({ message: "The clicked product was retrieved successfully", data: singleProduct });
+
+    } catch (error) {
+        return res.status(500).json({ message: `This error was thrown in an attempt to retrieve all users: ${error.message}` });
+    }
+}
+
 export const updateProductInfo = async (req, res) => {
     const id = req.params.productId; // this is the id of the user that was extracted from the token and saved in the req.user object in the authenticator middleware
     // const { id } = req.params; is no longer needed... can be deleted for this project
