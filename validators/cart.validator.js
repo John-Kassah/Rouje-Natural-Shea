@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const cartValidator = Joi.object({
-    user: Joi.string().required(), // Should be a valid ObjectId, you can add .regex(/^[0-9a-fA-F]{24}$/) if you want to strictly check for ObjectId
+    user: Joi.string().required(), 
     items: Joi.array().items(
                 Joi.object({
                     product: Joi.string().required(), // Should be ObjectId
