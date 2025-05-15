@@ -9,6 +9,5 @@ export const orderValidator = Joi.object({
                 priceAtPurchase: Joi.number().min(0).required()
             })
     ).min(1).required(),
-    total: Joi.number().min(0).required(),
-    status: Joi.string().valid('Pending', 'Paid', 'Shipped', 'Completed', 'Cancelled')
+    total: Joi.number().min(0).required()
 }).options({ abortEarly: false });
