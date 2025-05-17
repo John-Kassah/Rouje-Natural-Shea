@@ -118,19 +118,3 @@ export const getOrderById = async (req, res) => {
     }
 };
 
-
-export const getAllMyOrders = async (req, res) => {
-    const userId = req.user.id;
-
-    try {
-        const orders = await orderModel.find({ user: userId })
-            .sort({ createdAt: -1 })
-            .populate('items.product', 'name price');
-
-        return res.status(200).json({ MIDIOutputMapessage: `The users orders were retrieved sucessfully`, Orders: orders });
-    } catch (error) {
-        console.error('Error fetching user orders:', error);
-        return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
-    }
-};
-
