@@ -6,8 +6,8 @@ const orderRouter = express.Router();
 
 orderRouter.post('/createOrder', authenticator, createOrder );
 
-orderRouter.post('/getOrderById/:orderId', authenticator, getOrderById);
+orderRouter.get('/getAllMyOrders', authenticator, getAllMyOrders );
 
-orderRouter.post('/getAllMyOrders', authenticator, getAllMyOrders );
+orderRouter.get('/getOrderById/:orderId', authenticator, getOrderById);
 
 export default orderRouter;
