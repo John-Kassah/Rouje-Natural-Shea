@@ -1,14 +1,10 @@
 import Joi from "joi";
 
 export const orderValidator = Joi.object({
-    user: Joi.string().required(),
-    items: Joi.array().items(
-            Joi.object({
-                product: Joi.string().required(),
-                quantity: Joi.number().integer().min(1).required(),
-                priceAtPurchase: Joi.number().min(0).required()
-            })
-    ).min(1).required(),
-    total: Joi.number().min(0).required(),
-    status: Joi.string().valid('Pending', 'Paid', 'Shipped', 'Completed', 'Cancelled')
+    fullName: Joi.string().required(),
+    email: Joi.string().required(),
+    phone: Joi.string().required(),
+    address: Joi.string().required(),
+    city: Joi.string().required(),
+    paymentMethod: Joi.string().required()
 }).options({ abortEarly: false });
