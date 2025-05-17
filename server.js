@@ -5,6 +5,7 @@ import { connectDB } from './config/db.js';
 import cors from 'cors';
 import productRouter from './Routers/product.router.js';
 import cartRouter from './Routers/cart.routers.js';
+import orderRouter from './Routers/order.router.js';
 
 
 dotenv.config();
@@ -35,4 +36,5 @@ app.listen(port, ( ) => {
 app.use('/', userRouter); 
 app.use('/', productRouter);
 app.use('/', cartRouter);
+app.use('/', orderRouter);
 

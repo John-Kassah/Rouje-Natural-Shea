@@ -1,9 +1,21 @@
 import mongoose from "mongoose"
-import { cartModel } from "../models/carts.model";
-import { orderModel } from "../models/order.model";
+import { cartModel } from "../models/carts.model.js";
+import { orderModel } from "../models/order.model.js";
+import { orderValidator } from "../validators/order.validator.js";
+import { addPaymentMethod } from "./paymentMethod.controllers.js";
 
 
-export const createOrder = async (userId) => {
+export const createOrder = async (req, res) => {
+    const userId = req.user.id;
+
+    // Validate the request body using the orderValidator and create the paymentMethod
+    
+    const { error, value } = orderValidator.validate(req.body)
+    if (error) {
+        return res.status(400).json(`Kindly check the request body for the following errors: ${error.details.map(err => err.message).join(', ')}`);
+    } 
+
+        const paymentMethod = await addPaymentMethod(req);
 
     //Since this is a compound operation, and it needs to be atomic - all succed or none(rollback), then we will use a MongoDB session to ensure this
     const session = await mongoose.startSession();
@@ -25,17 +37,19 @@ export const createOrder = async (userId) => {
 
         //Finding the total cost of all products in the cart
         const totalCharge = orderItems.reduce(
-            (sum, productItem) => sum + (productItem.quantity * productItem.price), 0
-        );
+            (sum, productItem) => sum + (productItem.quantity * productItem.priceAtPurchase), 0
+        ); 
 
-        //Now we create the order - remember we need this action to be atomic so we use a session
-        const newOrder = await orderModel.create(
+        //Now we create the order - remember we need this action to be atomic so we use a session 
+        console.log('we got here ', userId, totalCharge)
+        const newOrder = await orderModel(
             {
                 user: userId,
                 items: orderItems,
-                priceAtPurchase: totalCharge
-            }, { session }
-        );
+                total: totalCharge
+            }, {session}
+        ); 
+        
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
         cart.items = [];
@@ -53,7 +67,7 @@ export const createOrder = async (userId) => {
         await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
         session.endSession();
         console.error('Error creating order:', error);
-        return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
+        return res.status(500).json(`This error was thrown in an attempt to make an order: ${error.message}`);
     }
 }
 
