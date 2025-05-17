@@ -47,7 +47,11 @@ export const addToCart = async (req, res) => {
                 cart.items[productItemIndex].quantity += Number(quantity);
             } else {
                 // If the product does not exist in the cart, add it as a new item
-                cart.items.push({ product: productId, quantity: quantity });
+                cart.items.push({ 
+                    product: productId, 
+                    quantity: quantity,
+                    price: product.price
+                });
             }
 
             // Save the updated cart

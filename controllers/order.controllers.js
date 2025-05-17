@@ -42,14 +42,19 @@ export const createOrder = async (req, res) => {
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
         console.log('we got here ', userId, totalCharge)
-        const newOrder = await orderModel(
+
+       const newOrder = new orderModel(
+
             {
                 user: userId,
                 items: orderItems,
                 total: totalCharge
-            }, {session}
+
+            }
         ); 
-        
+        await newOrder.save({session})
+        await newOrder.populate('items.product', 'name price productImageUrls')
+
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
         cart.items = [];
@@ -71,6 +76,22 @@ export const createOrder = async (req, res) => {
     }
 }
 
+
+export const getAllMyOrders = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const orders = await orderModel.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .populate('items.product', 'name price productImageUrls');
+
+        return res.status(200).json({ Message: `The users orders were retrieved sucessfully`, Orders: orders });
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
+    }
+};
+
 export const getOrderById = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.user.id;
@@ -88,12 +109,15 @@ export const getOrderById = async (req, res) => {
             return res.status(403).json({ message: 'This user is not authorized to view the requested order.' });
         }
 
-        return res.status(200).json({ order });
+
+        return res.status(200).json({ message: 'Order has been retrieved', Order: order });
+
     } catch (error) {
 
         return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+
 
 export const getAllMyOrders = async (req, res) => {
     const userId = req.user.id;
@@ -109,3 +133,4 @@ export const getAllMyOrders = async (req, res) => {
         return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+
