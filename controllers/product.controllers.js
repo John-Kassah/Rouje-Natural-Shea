@@ -39,6 +39,7 @@ export const addProduct = async (req, res) => {
         res.status(201).json({ message: "Product was added successfully", data: modelProduct });
 
     } catch (error) {
+        console.log(`This error was thrown in an attempt to add a product: ${error.message}`)
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
@@ -61,6 +62,23 @@ export const getProducts = async(req, res) => {
     res.status(200).json({ message: "Products were retrieved successfully", data: filteredProducts });
   } catch (error) {
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
+    }
+}
+
+export const getSingleProductById = async (req, res) => {
+    const productId = req.params.productId
+    try {
+        const singleProduct = await productModel.findById(productId)
+            .select('-__v -_id') // Exclude these fields from the product;
+
+        if (!singleProduct) {
+            return res.status(404).json({ message: `This product was not found` });
+        }
+
+        return res.status(200).json({ message: "The clicked product was retrieved successfully", data: singleProduct });
+
+    } catch (error) {
+        return res.status(500).json({ message: `This error was thrown in an attempt to retrieve all users: ${error.message}` });
     }
 }
 

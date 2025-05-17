@@ -11,7 +11,7 @@ const userRouter = express.Router();
 userRouter.get('/getAllUsers', authenticator, authorizationOfRole('admin'), getAllUsers);
 
 /* Mount get request on *get-A-UserWith-Id* endpoint */
-userRouter.get('/login', loginUser)
+userRouter.post('/login', loginUser)
 
 // Mount get request on */addUser* endpoint
 userRouter.post('/addUser', registerUser);
