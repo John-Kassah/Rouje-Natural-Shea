@@ -4,8 +4,9 @@ import { addProductValidator } from "../validators/product.validator.js";
 
 
 export const addProduct = async (req, res) => {
-
+    console.log('We got here');
     try {
+        console.log('Then We got here');
         // Validate the request body using the userRegistrationValidator
         const {error, value} = addProductValidator.validate(req.body);
         if (error) {
