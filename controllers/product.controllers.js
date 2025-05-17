@@ -38,6 +38,7 @@ export const addProduct = async (req, res) => {
         res.status(201).json({ message: "Product was added successfully", data: modelProduct });
 
     } catch (error) {
+        console.log(`This error was thrown in an attempt to add a product: ${error.message}`)
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
