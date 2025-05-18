@@ -5,5 +5,6 @@ export const addProductValidator = Joi.object({
     description: Joi.string().required(),
     category: Joi.string().required(),
     price: Joi.number().required(),
-    stock: Joi.number().required()
+    stock: Joi.number().required(),
+    newArrivals: Joi.boolean()
 })
