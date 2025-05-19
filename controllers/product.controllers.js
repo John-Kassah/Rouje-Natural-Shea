@@ -103,8 +103,8 @@ export const updateProductInfo = async (req, res) => {
 
     // check to make sure that the changes being requested are not already present in the document in the DB
     if (Object.keys(newProductUpdates)
-        .every( updateKeys => newProductUpdates[updateKeys] === currentProductData[updateKeys])) {
-        return res.status(400).send(`The user info you are trying to update is already present in the database`);
+        .every( updateKeys => String(newProductUpdates[updateKeys]) === String(currentProductData[updateKeys]))) {
+        return res.status(200).send(`The user info you are trying to update is already present in the database`);
     }
 
     // If the control flow reaches this point, it means that the user info is not already present in the database
