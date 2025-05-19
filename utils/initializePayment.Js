@@ -1,9 +1,19 @@
-const https = require('https')
+import https from 'https';
 
-const params = JSON.stringify({
-  "email": "customer@email.com",
-  "amount": "500000"
-})
+export const initializePayment = async (req, res) => {
+  const { email, amount } = req.body;
+
+  const params = JSON.stringify({
+    email,
+    amount : amount * 100  // Paystack expects amount in 
+  });
+
+  const options = {
+    hostname: 'api.paystack.co',
+    port: 443,
+  }
+  }
+
 
 const options = {
   hostname: 'api.paystack.co',
