@@ -83,6 +83,7 @@ export const getSingleProductById = async (req, res) => {
 }
 
 export const updateProductInfo = async (req, res) => {
+    try {
     const id = req.params.productId; // this is the id of the user that was extracted from the token and saved in the req.user object in the authenticator middleware
     // const { id } = req.params; is no longer needed... can be deleted for this project
     const newProductUpdates = req.body;
@@ -109,7 +110,6 @@ export const updateProductInfo = async (req, res) => {
     // If the control flow reaches this point, it means that the user info is not already present in the database
     // and the id specified is valid and the user exists in the database
     // and the user info can be updated
-    try {
          const updatedProduct = await productModel
         .findByIdAndUpdate(id, newProductUpdates, { new: true });
         res.status(201).json({message: `The update was a success. This is the updated product: `, data: updatedProduct});
