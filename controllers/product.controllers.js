@@ -88,6 +88,11 @@ export const updateProductInfo = async (req, res) => {
     // const { id } = req.params; is no longer needed... can be deleted for this project
     const newProductUpdates = req.body;
 
+    if (!req.files) {
+            return res.status(400).json({ error: 'Image upload failed' });
+        }
+        newProductUpdates.productImageUrls = req.files.map(file => file.path);// Get the image URL's from the request body and add it to the user info object that will be saved to the database.
+
       // Check if the id is not a valid mongoose id that fits a valid ObjectId
     //   Do this before querying the database to save on resources and avoid an error called "CastError" which means that the id is not a valid ObjectId or is not in the correct format ot type
       if (!mongoose.Types.ObjectId.isValid(id)) {
