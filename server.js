@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import cors from 'cors';
 import productRouter from './Routers/product.router.js';
+import cartRouter from './Routers/cart.routers.js';
+import orderRouter from './Routers/order.router.js';
 
 
 dotenv.config();
@@ -17,7 +19,9 @@ app.use(express.json());
 // Eneble cross-origin resource sharing (CORS) in your app. This will allow your app to accept requests from other domains and ports
 // and allow your app to send requests to other domains and ports. This is important for security reasons.
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://rouje-naturel.vercel.app/hair'], // Your frontend's URL
+
+    origin: ['https://rouje-naturel.vercel.app', 'http://localhost:5173'], // Your frontend's URL
+
     credentials: true
 }));
 
@@ -32,5 +36,7 @@ app.listen(port, ( ) => {
 
 // Enable yout server to use the *useRouter* middleware by mounting the router on the */users* endpoint
 app.use('/', userRouter); 
-app.use('/',productRouter)
+app.use('/', productRouter);
+app.use('/', cartRouter);
+app.use('/', orderRouter);
 
