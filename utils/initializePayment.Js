@@ -1,11 +1,8 @@
-
-
 const https = require('https')
 
 const params = JSON.stringify({
-  "authorization_code" : "AUTH_pmx3mgawyd",
-  "email" : "mail@mail.com",
-  "amount" : 300000
+  "email": "customer@email.com",
+  "amount": "500000"
 })
 
 const options = {
