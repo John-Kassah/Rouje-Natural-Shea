@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import { userModel } from "../models/user.model.js";
 import { userLoginValidator, userRegistrationValidator } from "../validators/user_validator.js";
 import jwt from "jsonwebtoken";
@@ -152,6 +153,7 @@ export const deleteUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     const {id} = req.params;
     const newUserUpdates = req.body;
+    const { password } = req.body;
 
       // Check if the id is not a valid mongoose id that fits a valid ObjectId
     //   Do this before querying the database to save on resources and avoid an error called "CastError" which means that the id is not a valid ObjectId or is not in the correct format ot type
@@ -171,17 +173,23 @@ export const updateUser = async (req, res) => {
         .every( updateKeys => newUserUpdates[updateKeys] === currentUserData[updateKeys])) {
         return res.status(400).send(`The user info you are trying to update is already present in the database`);
     }
+    // Check if the password is being updated
+    // If the password is being updated, hash it before saving to the database
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        newUserUpdates.password = await bcrypt.hash(newUserUpdates.password, salt);
+  }
 
     // If the control flow reaches this point, it means that the user info is not already present in the database
     // and the id specified is valid and the user exists in the database
     // and the user info can be updated
     try {
-         await userModel
-        .findByIdAndUpdate(id, newUserUpdates, { new: true });
-        res.status(200).json({message: "The update was a success", data: `Updates: changed to ${JSON.stringify(newUserUpdates, null, 2)} Current User Data: ${await userModel.findById(id)}`});
-    } catch (error) {
-        res.status(500).json({message: `This error was thrown in an attempt to update user info: ${error.message}`});
-    }
+             const updatedUser = await userModel
+             .findByIdAndUpdate(id, newUserUpdates, { new: true });
+            res.status(201).json({message: `The update was a success. This is the updated product: `, data: updatedUser});
+        } catch (error) {
+            res.status(500).json({message: `This error was thrown in an attempt to update user info: ${error.message}`});
+        }
 };
 
 export const verifyEmail = async (req, res) => {
