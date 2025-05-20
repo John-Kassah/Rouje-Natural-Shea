@@ -71,6 +71,21 @@ export const addToCart = async (req, res) => {
     }
 };
 
+export const getMyCart = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const cart = await cartModel.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .populate('items.product', 'name price productImageUrls');
+
+        return res.status(200).json({ Message: `The users cart was retrieved sucessfully`, Cart: cart });
+    } catch (error) {
+        console.error('Error fetching user cart:', error);
+        return res.send(`This error was thrown in an attempt to get the users cart: ${error.message}`);
+    }
+};
+
 export const removeCartItemById = async (req, res) => {
     try {
         const userId = req.user.id; // Assuming user is authenticated and attached to req

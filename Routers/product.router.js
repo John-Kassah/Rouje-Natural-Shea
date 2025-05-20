@@ -12,7 +12,7 @@ productRouter.get('/getProducts', getProducts)
 
 productRouter.get('/getSingleProductById/:productId', getSingleProductById)
 
-productRouter.patch('/updateProductInfo/:productId', authenticator, authorizationOfRole('admin'), updateProductInfo)
+productRouter.patch('/updateProductInfo/:productId', authenticator, authorizationOfRole('admin'), parser.array('images', 4), updateProductInfo)
 
 productRouter.delete('/deleteProduct/:productId', authenticator, authorizationOfRole('admin'), deleteProduct)
 

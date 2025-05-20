@@ -42,15 +42,19 @@ export const createOrder = async (req, res) => {
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
         console.log('we got here ', userId, totalCharge)
-        const newOrder = new orderModel(
+
+       const newOrder = new orderModel(
+
             {
                 user: userId,
                 items: orderItems,
                 total: totalCharge
+
             }
         ); 
         await newOrder.save({session})
         await newOrder.populate('items.product', 'name price productImageUrls')
+
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
         cart.items = [];
@@ -71,6 +75,7 @@ export const createOrder = async (req, res) => {
         return res.status(500).json(`This error was thrown in an attempt to make an order: ${error.message}`);
     }
 }
+
 
 export const getAllMyOrders = async (req, res) => {
     const userId = req.user.id;
@@ -104,12 +109,15 @@ export const getOrderById = async (req, res) => {
             return res.status(403).json({ message: 'This user is not authorized to view the requested order.' });
         }
 
+
         return res.status(200).json({ message: 'Order has been retrieved', Order: order });
+
     } catch (error) {
 
         return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+
 
 export const getAllOrders = async (req, res) => {
     const userId = req.user.id;
@@ -126,3 +134,4 @@ export const getAllOrders = async (req, res) => {
         return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+

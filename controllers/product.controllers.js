@@ -4,8 +4,9 @@ import { addProductValidator } from "../validators/product.validator.js";
 
 
 export const addProduct = async (req, res) => {
-
+    console.log('We got here');
     try {
+        console.log('Then We got here');
         // Validate the request body using the userRegistrationValidator
         const {error, value} = addProductValidator.validate(req.body);
         if (error) {
@@ -38,6 +39,7 @@ export const addProduct = async (req, res) => {
         res.status(201).json({ message: "Product was added successfully", data: modelProduct });
 
     } catch (error) {
+        console.log(`This error was thrown in an attempt to add a product: ${error.message}`)
         res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
@@ -81,9 +83,15 @@ export const getSingleProductById = async (req, res) => {
 }
 
 export const updateProductInfo = async (req, res) => {
+    try {
     const id = req.params.productId; // this is the id of the user that was extracted from the token and saved in the req.user object in the authenticator middleware
     // const { id } = req.params; is no longer needed... can be deleted for this project
     const newProductUpdates = req.body;
+
+    if (!req.files) {
+            return res.status(400).json({ error: 'Image upload failed' });
+        }
+        newProductUpdates.productImageUrls = req.files.map(file => file.path);// Get the image URL's from the request body and add it to the user info object that will be saved to the database.
 
       // Check if the id is not a valid mongoose id that fits a valid ObjectId
     //   Do this before querying the database to save on resources and avoid an error called "CastError" which means that the id is not a valid ObjectId or is not in the correct format ot type
@@ -100,14 +108,13 @@ export const updateProductInfo = async (req, res) => {
 
     // check to make sure that the changes being requested are not already present in the document in the DB
     if (Object.keys(newProductUpdates)
-        .every( updateKeys => newProductUpdates[updateKeys] === currentProductData[updateKeys])) {
-        return res.status(400).send(`The user info you are trying to update is already present in the database`);
+        .every( updateKeys => String(newProductUpdates[updateKeys]) === String(currentProductData[updateKeys]))) {
+        return res.status(200).send(`The user info you are trying to update is already present in the database`);
     }
 
     // If the control flow reaches this point, it means that the user info is not already present in the database
     // and the id specified is valid and the user exists in the database
     // and the user info can be updated
-    try {
          const updatedProduct = await productModel
         .findByIdAndUpdate(id, newProductUpdates, { new: true });
         res.status(201).json({message: `The update was a success. This is the updated product: `, data: updatedProduct});
