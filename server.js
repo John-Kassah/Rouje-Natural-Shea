@@ -6,6 +6,7 @@ import cors from 'cors';
 import productRouter from './Routers/product.router.js';
 import cartRouter from './Routers/cart.routers.js';
 import orderRouter from './Routers/order.router.js';
+import initializePaymentRouter from './Routers/initialize.payment.router.js';
 
 
 dotenv.config();
@@ -39,4 +40,5 @@ app.use('/', userRouter);
 app.use('/', productRouter);
 app.use('/', cartRouter);
 app.use('/', orderRouter);
+app.use('/', initializePaymentRouter);
 
