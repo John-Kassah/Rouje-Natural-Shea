@@ -118,3 +118,20 @@ export const getOrderById = async (req, res) => {
     }
 };
 
+
+export const getAllOrders = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const orders = await orderModel.find({})
+            .sort({ createdAt: -1 })
+            .populate('user', 'fullName email')
+            .populate('items.product', 'name price productImageUrls');
+
+        return res.status(200).json({ Message: `All users orders were retrieved sucessfully`, Orders: orders });
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
+    }
+};
+

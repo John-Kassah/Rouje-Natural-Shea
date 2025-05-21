@@ -16,11 +16,11 @@ userRouter.post('/login', loginUser)
 // Mount get request on */addUser* endpoint
 userRouter.post('/addUser', registerUser);
 
-// Mount delete request on */deleteUser* endpoint
-userRouter.delete('/deleteUser/:id', authenticator, authorizationOfRole('user', 'admin'), deleteUser);
-
 // Mount patch request on */updateUser* endpoint
 userRouter.patch('/updateUser/:id', authenticator, authorizationOfRole('user', 'admin'), updateUser);
+
+// Mount delete request on */deleteUser* endpoint
+userRouter.delete('/deleteUser/:id', authenticator, authorizationOfRole('user', 'admin'), deleteUser);
 
 // Mount get request on */verifyEmail* endpoint
 userRouter.get('/verifyEmail', verifyEmail);

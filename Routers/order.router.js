@@ -1,10 +1,12 @@
 import express from 'express'
-import { createOrder, getAllMyOrders, getOrderById } from '../controllers/order.controllers.js';
-import { authenticator } from '../middlewares/auth.js';
+import { createOrder, getAllMyOrders, getAllOrders, getOrderById } from '../controllers/order.controllers.js';
+import { authenticator, authorizationOfRole } from '../middlewares/auth.js';
 
 const orderRouter = express.Router();
 
 orderRouter.post('/createOrder', authenticator, createOrder );
+
+orderRouter.get('/getAllOrders', authenticator, authorizationOfRole('admin'), getAllOrders );
 
 orderRouter.get('/getAllMyOrders', authenticator, getAllMyOrders );
 
