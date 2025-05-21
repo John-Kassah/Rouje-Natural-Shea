@@ -126,3 +126,24 @@ export const getAllOrders = async (req, res) => {
         return res.send(`This error was thrown in an attempt to add a product: ${error.message}`);
     }
 };
+
+export const updateOrderStatusById = async (req, res) => {
+    const { orderId } = req.params;
+    const { orderStatus } = req.body;
+
+    try {
+        const order = await orderModel.findByIdAndUpdate(
+            orderId,
+            { orderStatus },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found.' });
+        }
+
+        return res.status(200).json({ message: 'Order status updated successfully.', Order: order });
+    } catch (error) {
+        return res.status(500).json(`This error was thrown in an attempt to update the order status: ${error.message}`);
+    }
+};
