@@ -119,6 +119,10 @@ export const getOrderById = async (req, res) => {
 };
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 300d3fe6579090a904d6d851b1aac64552704a0a
 export const getAllOrders = async (req, res) => {
     const userId = req.user.id;
 
