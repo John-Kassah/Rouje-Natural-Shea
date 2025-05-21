@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['Skin', 'Hair', 'Clensers', 'Natural Oils', 'Gift and Sets', 'Other'],
+        enum: ['Skin', 'Hair', 'Cleansers', 'Natural Oils', 'Gifts and Sets', 'Other'],
         required: true,
         default: 'Other'
     },
