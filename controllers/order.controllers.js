@@ -119,6 +119,7 @@ export const getOrderById = async (req, res) => {
 };
 
 
+
 export const getAllOrders = async (req, res) => {
     const userId = req.user.id;
 
@@ -155,3 +156,4 @@ export const updateOrderStatusById = async (req, res) => {
         return res.status(500).json(`This error was thrown in an attempt to update the order status: ${error.message}`);
     }
 };
+

@@ -6,6 +6,7 @@ import cors from 'cors';
 import productRouter from './Routers/product.router.js';
 import cartRouter from './Routers/cart.routers.js';
 import orderRouter from './Routers/order.router.js';
+import initializePaymentRouter from './Routers/initialize.payment.router.js';
 
 
 dotenv.config();
@@ -20,7 +21,7 @@ app.use(express.json());
 // and allow your app to send requests to other domains and ports. This is important for security reasons.
 app.use(cors({
 
-    origin: ['https://rouje-naturel.vercel.app', 'http://localhost:5173'], // Your frontend's URL
+    origin: ['https://rouje-naturel.vercel.app', 'http://localhost:5173', 'http://localhost:4000'], // Your frontend's URL
 
     credentials: true
 }));
@@ -39,4 +40,5 @@ app.use('/', userRouter);
 app.use('/', productRouter);
 app.use('/', cartRouter);
 app.use('/', orderRouter);
+app.use('/', initializePaymentRouter);
 
