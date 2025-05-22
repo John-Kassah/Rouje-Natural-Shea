@@ -6,6 +6,13 @@ const paymentMethodSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    order: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Order',
+            required: true
+        }
+    ],
     provider: {
         type: String,
         default: 'paystack',
