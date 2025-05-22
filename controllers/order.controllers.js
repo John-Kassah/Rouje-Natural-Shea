@@ -155,7 +155,8 @@ export const getAllOrders = async (req, res) => {
         const orders = await orderModel.find({})
             .sort({ createdAt: -1 })
             .populate('user', 'fullName email')
-            .populate('items.product', 'name price productImageUrls');
+            .populate('items.product', 'name price productImageUrls')
+            .populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber');
 
         return res.status(200).json({ Message: `All users orders were retrieved sucessfully`, Orders: orders });
     } catch (error) {
