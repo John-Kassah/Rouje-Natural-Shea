@@ -43,19 +43,29 @@ export const createOrder = async (req, res) => {
         const incomingPaymentMethod = req.body
         const existingPaymentMethods = await paymentMethodModel.find({ userId })
 
-        // 2. Try to find a full-document match
+        // 2. Try to find a payment method match using only relevant fields and handling ObjectIds
+
+        const matchFields = ['fullName', 'email', 'phone', 'address', 'city', 'paymentMethod'];
+
         let matched = existingPaymentMethods.find(pm => {
-            // For each key in paymentDetails, check strict equality
-            return Object.entries(incomingPaymentMethod).every(([key, val]) => {
-                // Note: pm[key] is the stored value on the doc
-                return pm[key] === val;
+            return matchFields.every(key => {
+                // Only compare if the incoming value is not undefined/null
+                if (incomingPaymentMethod[key] === undefined || incomingPaymentMethod[key] === null) return true;
+
+                // If the stored value is an ObjectId, compare as strings
+                if (pm[key] instanceof mongoose.Types.ObjectId || (pm[key] && pm[key]._bsontype === 'ObjectID')) {
+                    return pm[key].toString() === incomingPaymentMethod[key].toString();
+                }
+                // For all other types, use strict equality
+                return pm[key] === incomingPaymentMethod[key];
             });
         });
 
         // 3. If no match, create a new one
         if (!matched) {
-            matched = await addPaymentMethod(req.body);
-        }
+            matched = await addPaymentMethod(req, req.body);
+            // console.log('New payment method created:', req.body);
+        }; 
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
 
@@ -70,7 +80,7 @@ export const createOrder = async (req, res) => {
         );
         await newOrder.save({ session })
         await newOrder.populate('items.product', 'name price productImageUrls')
-        .populate('paymentMethod')
+        await newOrder.populate('paymentMethod')
 
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
@@ -100,7 +110,8 @@ export const getAllMyOrders = async (req, res) => {
     try {
         const orders = await orderModel.find({ user: userId })
             .sort({ createdAt: -1 })
-            .populate('items.product', 'name price productImageUrls');
+            .populate('items.product', 'name price productImageUrls')
+            .populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber');
 
         return res.status(200).json({ Message: `The users orders were retrieved sucessfully`, Orders: orders });
     } catch (error) {
@@ -116,7 +127,8 @@ export const getOrderById = async (req, res) => {
     try {
         const order = await orderModel.findById(orderId)
             .populate('items.product', 'name price productImageUrls')
-            .populate('user', 'fullName email');
+            .populate('user', 'fullName email')
+            .populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber');
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' });

@@ -2,7 +2,7 @@ import paymentMethodModel from "../models/paymentMethod.model.js";
 import { userModel } from "../models/user.model.js";
 
 
-export const addPaymentMethod = async (req) => {
+export const addPaymentMethod = async (req, details) => {
   try {
     const user = await userModel.findOne({email: req.user.email})
     if (!user) {
@@ -11,7 +11,7 @@ export const addPaymentMethod = async (req) => {
     }
     const userId = user.id;
 
-    const method = new paymentMethodModel({ userId, provider: 'paystack', type: req.body.paymentMethod, phoneNumber: req.body.phoneNumber });
+    const method = new paymentMethodModel({ userId, provider: 'paystack', fullName:  details.fullName, email: details.email, phone: details.phone, address: details.address, city: details.city, paymentMethod: details.paymentMethod, phoneNumber: details.phoneNumber });
     await method.save();
 
     return method;
