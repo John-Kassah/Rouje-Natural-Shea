@@ -3,19 +3,18 @@ import { cartModel } from "../models/carts.model.js";
 import { orderModel } from "../models/order.model.js";
 import { orderValidator } from "../validators/order.validator.js";
 import { addPaymentMethod } from "./paymentMethod.controllers.js";
+import paymentMethodModel from "../models/paymentMethod.model.js";
 
 
 export const createOrder = async (req, res) => {
     const userId = req.user.id;
 
     // Validate the request body using the orderValidator and create the paymentMethod
-    
+
     const { error, value } = orderValidator.validate(req.body)
     if (error) {
         return res.status(400).json(`Kindly check the request body for the following errors: ${error.details.map(err => err.message).join(', ')}`);
-    } 
-
-        const paymentMethod = await addPaymentMethod(req);
+    }
 
     //Since this is a compound operation, and it needs to be atomic - all succed or none(rollback), then we will use a MongoDB session to ensure this
     const session = await mongoose.startSession();
@@ -38,22 +37,40 @@ export const createOrder = async (req, res) => {
         //Finding the total cost of all products in the cart
         const totalCharge = orderItems.reduce(
             (sum, productItem) => sum + (productItem.quantity * productItem.priceAtPurchase), 0
-        ); 
+        );
+
+        // 1. Fetch all this user's payment methods and extract the incoming payment method from the request body.
+        const incomingPaymentMethod = req.body
+        const existingPaymentMethods = await paymentMethodModel.find({ userId })
+
+        // 2. Try to find a full-document match
+        let matched = existingPaymentMethods.find(pm => {
+            // For each key in paymentDetails, check strict equality
+            return Object.entries(incomingPaymentMethod).every(([key, val]) => {
+                // Note: pm[key] is the stored value on the doc
+                return pm[key] === val;
+            });
+        });
+
+        // 3. If no match, create a new one
+        if (!matched) {
+            matched = await addPaymentMethod(req.body);
+        }
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
-        console.log('we got here ', userId, totalCharge)
 
-       const newOrder = new orderModel(
+        const newOrder = new orderModel(
 
             {
                 user: userId,
                 items: orderItems,
-                total: totalCharge
-
+                total: totalCharge,
+                paymentMethod: matched.id,
             }
-        ); 
-        await newOrder.save({session})
+        );
+        await newOrder.save({ session })
         await newOrder.populate('items.product', 'name price productImageUrls')
+        .populate('paymentMethod')
 
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
