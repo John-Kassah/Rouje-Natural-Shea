@@ -6,21 +6,13 @@ const paymentMethodSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    order: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Order',
-            required: true
-        }
-    ],
     provider: {
         type: String,
         default: 'paystack',
     },
     type: {
         type: String,
-        enum: ['card', 'momo', 'bank'],
-        default: 'momo',
+        enum: ['Cash on Delivery', 'Mobile Money', 'Credit/Debit Card'],
         required: true
     },
     providerId: {

@@ -11,7 +11,7 @@ export const addPaymentMethod = async (req) => {
     }
     const userId = user.id;
 
-    const method = new paymentMethodModel({ userId, provider: 'paystack', type: 'momo', phoneNumber: req.body.phoneNumber });
+    const method = new paymentMethodModel({ userId, provider: 'paystack', type: req.body.paymentMethod, phoneNumber: req.body.phoneNumber });
     await method.save();
 
     return method;
