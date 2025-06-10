@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
     items: [
         {
@@ -49,6 +48,12 @@ const orderSchema = new mongoose.Schema({
     updatedAt: {
         type: Date, default: Date.now
     },
+    cart: [
+  {
+    productId: String,   // ID of the product
+    quantity: Number       // How many of that product the user wants
+  }
+]
 }, {
     timestamps: true,
 });

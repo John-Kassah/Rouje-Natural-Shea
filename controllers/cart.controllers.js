@@ -10,8 +10,12 @@ export const addToCart = async (req, res) => {
     if (!Array.isArray(cartItems)) {
         cartItems = [cartItems];
     } else if (Array.isArray(cartItems)) {
-        await cartModel.findOneAndReplace({ user: req.user.id }, { user: req.user.id, items: [] }, { new: true })
-    }
+        await cartModel.findOneAndUpdate(
+  { user: req.user.id },           // 🔍 Filter condition
+  { $set: { items: [] } },         // 🔧 What you want to update
+  { new: true }                    // ✅ Return the updated document
+);
+}
 
     try {
         for (const item of cartItems) {

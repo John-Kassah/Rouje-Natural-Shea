@@ -1,9 +1,10 @@
 import mongoose from "mongoose"
 import { cartModel } from "../models/carts.model.js";
 import { orderModel } from "../models/order.model.js";
-import { orderValidator } from "../validators/order.validator.js";
-import { addPaymentMethod } from "./paymentMethod.controllers.js";
+import { guestOrderValidator, orderValidator } from "../validators/order.validator.js";
+import { addGuestPaymentMethod, addPaymentMethod } from "./paymentMethod.controllers.js";
 import paymentMethodModel from "../models/paymentMethod.model.js";
+import { productModel } from "../models/product.model.js";
 
 
 export const createOrder = async (req, res) => {
@@ -65,7 +66,7 @@ export const createOrder = async (req, res) => {
         if (!matched) {
             matched = await addPaymentMethod(req, req.body);
             // console.log('New payment method created:', req.body);
-        }; 
+        };
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
 
@@ -86,6 +87,71 @@ export const createOrder = async (req, res) => {
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
         cart.items = [];
         await cart.save({ session });//remember this action needs to be atomic with cart finding and order creation, so we apply the session
+
+        await session.commitTransaction();//to commit all the actions taken in the session.
+        session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
+
+        return res.status(201).json({
+            message: 'Order created successfully.',
+            order: newOrder
+        });
+    } catch (error) {
+        // 🔄 Rollback on error
+        await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
+        session.endSession();
+        console.error('Error creating order:', error);
+        return res.status(500).json(`This error was thrown in an attempt to make an order: ${error.message}`);
+    }
+}
+export const createGuestOrder = async (req, res) => {
+
+    // Validate the request body using the orderValidator and create the paymentMethod
+
+    const { error, value } = guestOrderValidator.validate(req.body)
+    if (error) {
+        return res.status(400).json(`Kindly check the request body for the following errors: ${error.details.map(err => err.message).join(', ')}`);
+    }
+
+    //Since this is a compound operation, and it needs to be atomic - all succed or none(rollback), then we will use a MongoDB session to ensure this
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        //To create the order, we want to fetch the users cart info - since this operation has to be a success for the order creation be possible, we want the to be in an atomic operation so we do it with a session.
+        const cart = req.body.cart;//now this operation is identified as part of the session
+        if (!cart) {
+            return res.status(400).json({ message: 'Cart is empty.' });
+        }//this ensures that there is something in the cart to place in an order
+
+        //If we find a cart thats not empty, then we go ahead to build the order items
+        const orderItems = await Promise.all(cart.map(async item => {
+            const productDoc = await productModel.findById(item.productId);
+            if (!productDoc) throw new Error(`Product not found: ${item.productId}`);
+            return {
+                product: item.productId,
+                quantity: item.quantity,
+                priceAtPurchase: productDoc.price
+            };
+        }));
+
+        const totalCharge = orderItems.reduce(
+            (sum, item) => sum + (item.quantity * item.priceAtPurchase), 0
+        );
+
+        //Now we create the order - remember we need this action to be atomic so we use a session 
+
+        // 1. Create or find the guest payment method
+        const guestPaymentMethod = await addGuestPaymentMethod(req, req.body, session);
+
+        // 2. Use its _id in the order
+        const newOrder = new orderModel({
+            items: orderItems,
+            total: totalCharge,
+            paymentMethod: guestPaymentMethod._id, // <-- Use the actual ID
+        });
+        await newOrder.save({ session })
+        await newOrder.populate('items.product', 'name price productImageUrls')
+        await newOrder.populate('paymentMethod')
 
         await session.commitTransaction();//to commit all the actions taken in the session.
         session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
