@@ -199,9 +199,11 @@ export const getOrderById = async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' });
         }
-        // Ensure users only see their own orders (unless admin)
-        if (order.user.toString() !== userId.toString() && !req.user.role.toString() === 'admin') {
-            return res.status(403).json({ message: 'This user is not authorized to view the requested order.' });
+        if (userId) {
+            // Ensure users only see their own orders (unless admin)
+            if (order.user.toString() !== userId.toString() && !req.user.role.toString() === 'admin') {
+                return res.status(403).json({ message: 'This user is not authorized to view the requested order.' });
+            }
         }
 
 
