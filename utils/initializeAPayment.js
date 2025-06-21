@@ -43,7 +43,7 @@ export const initializePayment = async (req, res) => {
         const paystackResponse = JSON.parse(data);
 
         // Send the actual Paystack response to the frontend
-        res.status(200).json({access_code: paystackResponse.data});
+        res.status(200).json({payment_link: paystackResponse.data.authorization_url, message: "Payment initialized successfully", status: true});
       } catch (err) {
         res.status(500).json({ message: "Failed to parse Paystack response", error: err.message });
       }
