@@ -17,7 +17,7 @@ export const initializePayment = async (req, res) => {
 
   const params = JSON.stringify({
     email,
-    amount: amount * 100  // Paystack expects amount in cedis
+    amount: `${amount * 100}`  // Paystack expects amount in cedis
   });
 
   const options = {
