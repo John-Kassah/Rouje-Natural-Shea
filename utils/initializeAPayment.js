@@ -8,16 +8,16 @@ export const initializePayment = async (req, res) => {
   const { amount } = req.body;
   const positiveIntAmount = Number(amount);
 
-  if (!Number.isInteger(positiveIntAmount) || positiveIntAmount <= 0) {
+  if ( positiveIntAmount <= 0) {
     return res.status(400).json({
       status: false,
-      message: "Amount must be a positive integer (no decimals)."
+      message: "Amount must be a greater than 0."
     });
   }
 
   const params = JSON.stringify({
     email,
-    amount: `${amount * 100}`  // Paystack expects amount in cedis
+    amount: amount * 100  // Paystack expects amount in cedis
   });
 
   const options = {
