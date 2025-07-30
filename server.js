@@ -21,7 +21,7 @@ app.use(express.json());
 // and allow your app to send requests to other domains and ports. This is important for security reasons.
 app.use(cors({
 
-    origin: ['https://rouje-naturel.vercel.app', 'http://localhost:5173', 'https://www.roujenaturel.com/'], // Your frontend's URL
+    origin: ['https://rouje-naturel.vercel.app', 'http://localhost:5173', 'https://roujenaturel.com/'], // Your frontend's URL
     credentials: true
 
 }));
