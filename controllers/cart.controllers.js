@@ -6,13 +6,13 @@ export const addToCart = async (req, res) => {
     let outerCartVariable = {};
     let cartItems = req.body;
 
-    //We sue this if-else logic here to ensure that when the click is made to add to cart, that happens and when the checkout is clicked, that also correctly updates the cart. we rely on how the body is sent for each instance... As an object for add to cart and as an array of objects for the checkout button
+    //We use this if-else logic here to ensure that when the click is made to add to cart, that happens and when the checkout is clicked, that also correctly updates the cart. we rely on how the body is sent for each instance... As an object for add to cart and as an array of objects for the checkout button
     if (!Array.isArray(cartItems)) {
         cartItems = [cartItems];
     } else if (Array.isArray(cartItems)) {
         await cartModel.findOneAndUpdate(
   { user: req.user.id },           // 🔍 Filter condition
-  { $set: { items: [] } },         // 🔧 What you want to update
+  { $set: { items: [] } },         // 🔧 What you want to update - clear any 
   { new: true }                    // ✅ Return the updated document
 );
 }
@@ -44,7 +44,7 @@ export const addToCart = async (req, res) => {
             // We first need to find the product item's location on this cart so that we can perform operations on it. So we look for it like so:
             const productItemIndex = cart.items.findIndex(
                 (cartItem) => cartItem.product.toString() === productId
-            ); // This will return an index (user has an instance of the product in the cart) or -1 (user does not have the product on the cart)
+            ); // This will return an index (if user already has an instance of the product in the cart) or -1 (user does not have the product on the cart)
 
             if (productItemIndex > -1) {
                 // If the product already exists in the cart, update the quantity
