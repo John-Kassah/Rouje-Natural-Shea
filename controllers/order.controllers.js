@@ -5,6 +5,7 @@ import { guestOrderValidator, orderValidator } from "../validators/order.validat
 import { addGuestPaymentMethod, addPaymentMethod } from "./paymentMethod.controllers.js";
 import paymentMethodModel from "../models/paymentMethod.model.js";
 import { productModel } from "../models/product.model.js";
+import { buildOrderReceiptHtml, sendOrderReceiptMail } from "../utils/orderReceiptMailSender.js";
 
 
 export const createOrder = async (req, res) => {
@@ -20,6 +21,7 @@ export const createOrder = async (req, res) => {
     //Since this is a compound operation, and it needs to be atomic - all succed or none(rollback), then we will use a MongoDB session to ensure this
     const session = await mongoose.startSession();
     session.startTransaction();
+    let committed = false;
 
     try {
         //To create the order, we want to fetch the users cart info - since this operation has to be a success for the order creation be possible, we want the to be in an atomic operation so we do it with a session.
@@ -67,6 +69,7 @@ export const createOrder = async (req, res) => {
             matched = await addPaymentMethod(req, req.body);
             // console.log('New payment method created:', req.body);
         };
+        console.log('Payment method matched or created:', matched);
 
         //Now we create the order - remember we need this action to be atomic so we use a session 
 
@@ -79,9 +82,10 @@ export const createOrder = async (req, res) => {
                 paymentMethod: matched.id,
             }
         );
+        console.log('payment method:', matched.id)
         await newOrder.save({ session })
-        await newOrder.populate('items.product', 'name price productImageUrls')
-        await newOrder.populate('paymentMethod')
+        
+        console.log('New order created:', newOrder);
 
 
         //Finally, we need to clear the cart to ensure that we dont get duplicate orders and good UX
@@ -89,7 +93,15 @@ export const createOrder = async (req, res) => {
         await cart.save({ session });//remember this action needs to be atomic with cart finding and order creation, so we apply the session
 
         await session.commitTransaction();//to commit all the actions taken in the session.
-        session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
+        committed = true;
+        session.endSession();//This is telling the MongoDb to stop monitoring this session and clean up resources
+
+        await newOrder.populate('user', 'fullName email');
+        await newOrder.populate('items.product', 'name price productImageUrls')
+        await newOrder.populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber')
+
+        const emailBody = buildOrderReceiptHtml(newOrder)
+        await sendOrderReceiptMail(newOrder)
 
         return res.status(201).json({
             message: 'Order created successfully.',
@@ -97,7 +109,9 @@ export const createOrder = async (req, res) => {
         });
     } catch (error) {
         // 🔄 Rollback on error
-        await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
+        if (!committed) {
+            await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
+        }
         session.endSession();
         console.error('Error creating order:', error);
         return res.status(500).json(`This error was thrown in an attempt to make an order: ${error.message}`);
@@ -115,6 +129,7 @@ export const createGuestOrder = async (req, res) => {
     //Since this is a compound operation, and it needs to be atomic - all succed or none(rollback), then we will use a MongoDB session to ensure this
     const session = await mongoose.startSession();
     session.startTransaction();
+    let committed = false;
 
     try {
         //To create the order, we want to fetch the users cart info - since this operation has to be a success for the order creation be possible, we want the to be in an atomic operation so we do it with a session.
@@ -150,11 +165,16 @@ export const createGuestOrder = async (req, res) => {
             paymentMethod: guestPaymentMethod._id, // <-- Use the actual ID
         });
         await newOrder.save({ session })
+
+        await session.commitTransaction();//to commit all the actions taken in the session.
+        committed = true;
+        session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
+
         await newOrder.populate('items.product', 'name price productImageUrls')
         await newOrder.populate('paymentMethod')
 
-        await session.commitTransaction();//to commit all the actions taken in the session.
-        session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
+        const emailBody = buildOrderReceiptHtml(newOrder)
+        await sendOrderReceiptMail(newOrder)
 
         return res.status(201).json({
             message: 'Order created successfully.',
@@ -162,7 +182,9 @@ export const createGuestOrder = async (req, res) => {
         });
     } catch (error) {
         // 🔄 Rollback on error
-        await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
+        if (!committed) {
+            await session.abortTransaction();//Incase of any error in any of our atomic actions, we abort the whole process. This prevents inconsistencies.
+        }
         session.endSession();
         console.error('Error creating order:', error);
         return res.status(500).json(`This error was thrown in an attempt to make an order: ${error.message}`);

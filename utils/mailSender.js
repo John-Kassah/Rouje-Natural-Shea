@@ -2,93 +2,107 @@ import nodemailer from 'nodemailer';
 
 // create a function to send verification email to the user
 export const sendVerificationMail = async (userEmail, token) => {
+  try {
+    console.log('we here');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: process.env.SMTP_SERVER_HOST,
+      port: process.env.SMTP_SERVER_PORT,
+      secure: false,
+      auth: {
+        user: process.env.AUTHENTICATION_EMAIL,
+        pass: process.env.EMAIL_AUTHENTICATION_PASSWORD
+      }
+    });
 
-    try {
-        // create a transporter object using the nodemailer module that will be used to send the email. transporter is able to connect to the outgoing smtp server and use it send the email.
-            console.log('we here')
-            const transporter = nodemailer.createTransport({
-                service: 'gmail', // use the gmail service to send the email. You may ahve issues with the manaual configuration but for guearanteed gmail configuration, use the service property to set the service to gmail. host and port will be set automatically by service but i just leave them there for clarity. the override has thesame values for the gmail service configuration and the transporter should behave thesame.
-                host: process.env.SMTP_SERVER_HOST,
-                port: process.env.SMTP_SERVER_PORT,
-                secure: false, // true for 465-TLS, false for other ports like 587-STARTTLS
-                auth: {
-                    user: process.env.AUTHENTICATION_EMAIL,
-                    pass: process.env.EMAIL_AUTHENTICATION_PASSWORD
-                }
-            });
-            await transporter.verify(); // verify the connection configuration
-            console.log('SMTP server is ready to send emails');
-        
-         // create the email options that will be used to send the email. The options include the sender, receiver, subject and body of the email
-         const mailOptions = {
-             from: process.env.AUTHENTICATION_EMAIL,
-             to: userEmail,
-             subject: 'Rouje Naturel Shea Verification Email',
-             text: `Hello, kindly click on the following link to verify your email address: ${process.env.ENDPOINT_HOST_URL}/verifyEmail/?token=${token}`,
-             html:  `<html>
+    await transporter.verify();
+    console.log('SMTP server is ready to send emails');
+
+    const mailOptions = {
+      from: process.env.AUTHENTICATION_EMAIL,
+      to: userEmail,
+      subject: 'Rouje Naturel Shea Verification Email',
+      text: `Hello, kindly click on the following link to verify your email address: ${process.env.ENDPOINT_HOST_URL}/verifyEmail/?token=${token}`,
+      html: `<!DOCTYPE html>
+<html>
 <head>
+  <meta charset="UTF-8" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #0b1220;
+      color: #e6eef6;
     }
-    .email-container {
-      background-color:rgb(41, 54, 71);
-      margin: 30px auto;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .wrap {
       max-width: 600px;
+      margin: 28px auto;
+      padding: 20px;
+      background: linear-gradient(180deg, #272338ff, #0b0f14);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(4, 10, 38, 0.7);
     }
     .header {
       text-align: center;
-      color: #333333;
+      color: #f7fafc;
+      font-size: 22px;
+      margin-bottom: 18px;
+    }
+    .content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #dbebffff;
+      text-align: center;
     }
     .button {
       display: inline-block;
-      background-color: #007BFF;
-      color: #ffffff;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: #587bc7ff; /* deeper blue to fit gradient theme */
+      color: #ffffff !important;
+      font-weight: 600;
       text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 4px;
-      margin: 20px 0;
-      font-weight: bold;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .button:hover {
+      background: #1d4ed8; /* slightly darker on hover */
     }
     .footer {
       text-align: center;
-      color: #aaaaaa;
       font-size: 12px;
-      margin-top: 20px;
+      color: #7f98b0;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <div class="email-container">
+  <div class="wrap">
     <h1 class="header">Verify Your Email</h1>
-    <p>Hello,</p>
-    <p>Please click on the following link to verify your email address:</p>
-    <p style="text-align: center;">
-      <a href="${process.env.ENDPOINT_HOST_URL}/verifyEmail/?token=${token}">Verify Email</a>
-    </p>
-    <p>If you did not request this, please ignore this email.</p>
-    <p>Thanks,</p>
-    <p>Rouje Team</p>
+    <div class="content">
+      <p>Hello,</p>
+      <p>Please click the button below to verify your email address:</p>
+      <p>
+        <a class="button" href="${process.env.ENDPOINT_HOST_URL}/verifyEmail/?token=${token}">
+          Verify Email
+        </a>
+      </p>
+      <p>If you did not request this, please ignore this email.</p>
+      <p>Thanks,<br/>Rouje Team</p>
+    </div>
     <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} Rouje Naturel Shea. All rights reserved.</p>
+      &copy; ${new Date().getFullYear()} Rouje Naturel Shea. All rights reserved.
     </div>
   </div>
 </body>
 </html>`
-        }
-    
-        // send the email using the transporter object and the mailOptions object. The sendMail method takes in the mailOptions object and sends the email to the user. It returns a promise that resolves to an object containing information about the sent email.
-            const info = await transporter.sendMail(mailOptions);
-            console.log('Email sent: ' + info.response);
-    } catch (error) {
-        console.error('Error sending verification email:', error);
-        throw error; // Re-throw error so that the caller can handle it appropriately
-    }  
-}
+    };
 
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    throw error;
+  }
+};
