@@ -118,7 +118,7 @@ export const buildOrderReceiptHtml = (orderDetails) => {
     <div class="wrap" role="article" aria-label="Order Receipt">
       <div class="top">
         <div>
-          <div class="brand">Rouje Naturel Shea</div>
+          <div class="brand">Rouje Naturel</div>
           <h1 style="margin:6px 0 4px 0; font-size:18px; color:#f7fafc;">Thanks for your order, ${escapeHtml(displayName)}!</h1>
           <div class="lead">Order <strong>#${escapeHtml(String(orderId))}</strong> • Placed on ${formatDate(orderDate)}</div>
 
@@ -176,8 +176,8 @@ export const buildOrderReceiptHtml = (orderDetails) => {
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; margin-top:22px; border-collapse:collapse; border-top:1px solid rgba(255,255,255,0.04);">
         <tr>
           <td style="padding:12px 0; text-align:center; color:#7f98b0; font-size:12px; opacity:0.96;">
-            Questions? Reply to this email or contact support at <a href="mailto:support@rouje.example" style="color:#cfe7ff; text-decoration:none">support@rouje.example</a><br>
-            &copy; ${new Date().getFullYear()} Rouje Naturel Shea. All rights reserved.
+            Questions? Reply to this email or contact support at <a href="mailto:roujenaturelgh@gmail.com" style="color:#cfe7ff; text-decoration:none">roujenaturelgh@gmail.com</a><br>
+            &copy; ${new Date().getFullYear()} Rouje Naturel. All rights reserved.
           </td>
         </tr>
       </table>

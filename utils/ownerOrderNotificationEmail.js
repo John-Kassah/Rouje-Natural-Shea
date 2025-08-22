@@ -33,7 +33,7 @@ export const buildOwnerOrderNotificationHtml = (orderDetails) => {
 
   return `
     <div style="background:#293647; color:#fff; padding:16px; text-align:center; font-size:18px; font-weight:bold; border-radius:6px 6px 0 0;">
-      🚨 New Order Received on Rouje Naturel Shea
+      🚨 New Order Received on Rouje Naturel
     </div>
     <div style="background:#ffffff; margin:0 auto; padding:20px; border-radius:0 0 6px 6px; max-width:600px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
       

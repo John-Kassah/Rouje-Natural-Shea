@@ -21,7 +21,7 @@ export const sendVerificationMail = async (userEmail, token) => {
     const mailOptions = {
       from: process.env.AUTHENTICATION_EMAIL,
       to: userEmail,
-      subject: 'Rouje Naturel Shea Verification Email',
+      subject: 'Rouje Naturel Verification Email',
       text: `Hello, kindly click on the following link to verify your email address: ${process.env.ENDPOINT_HOST_URL}/verifyEmail/?token=${token}`,
       html: `<!DOCTYPE html>
 <html>
@@ -92,7 +92,7 @@ export const sendVerificationMail = async (userEmail, token) => {
       <p>Thanks,<br/>Rouje Team</p>
     </div>
     <div class="footer">
-      &copy; ${new Date().getFullYear()} Rouje Naturel Shea. All rights reserved.
+      &copy; ${new Date().getFullYear()} Rouje Naturel. All rights reserved.
     </div>
   </div>
 </body>
