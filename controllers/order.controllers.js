@@ -6,6 +6,7 @@ import { addGuestPaymentMethod, addPaymentMethod } from "./paymentMethod.control
 import paymentMethodModel from "../models/paymentMethod.model.js";
 import { productModel } from "../models/product.model.js";
 import { buildOrderReceiptHtml, sendOrderReceiptMail } from "../utils/orderReceiptMailSender.js";
+import { buildOwnerOrderNotificationHtml, sendOrderNotificationToOwner } from "../utils/ownerOrderNotificationEmail.js";
 
 
 export const createOrder = async (req, res) => {
@@ -103,6 +104,9 @@ export const createOrder = async (req, res) => {
         const emailBody = buildOrderReceiptHtml(newOrder)
         await sendOrderReceiptMail(newOrder)
 
+        const ownerEmailBody = buildOwnerOrderNotificationHtml(newOrder)
+        await sendOrderNotificationToOwner(newOrder)
+
         return res.status(201).json({
             message: 'Order created successfully.',
             order: newOrder
@@ -175,6 +179,9 @@ export const createGuestOrder = async (req, res) => {
 
         const emailBody = buildOrderReceiptHtml(newOrder)
         await sendOrderReceiptMail(newOrder)
+
+        const ownerEmailBody = buildOwnerOrderNotificationHtml(newOrder)
+        await sendOrderNotificationToOwner(newOrder)
 
         return res.status(201).json({
             message: 'Order created successfully.',
