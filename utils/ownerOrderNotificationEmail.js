@@ -39,8 +39,8 @@ export const buildOwnerOrderNotificationHtml = (orderDetails) => {
       
       <!-- Buyer Information -->
       <h2 style="color:#293647;">Buyer Information</h2>
-      <p><strong>Name:</strong> ${buyer.fullName || 'N/A'}</p>
-      <p><strong>Email:</strong> ${buyer.email || 'N/A'}</p>
+      <p><strong>Name:</strong> ${o.fullName || 'N/A'}</p>
+      <p><strong>Email:</strong> ${o.email || 'N/A'}</p>
       <p><strong>Phone:</strong> ${paymentMethod.phone || buyer.phoneNumber || 'N/A'}</p>
       <p><strong>Address:</strong> ${buyer.address || paymentMethod.address || 'N/A'}</p>
       <p><strong>City:</strong> ${buyer.city || paymentMethod.city || 'N/A'}</p>
