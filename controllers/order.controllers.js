@@ -164,8 +164,6 @@ export const createGuestOrder = async (req, res) => {
 
         // 2. Use its _id in the order
         const newOrder = new orderModel({
-            user: value.fullName,
-            email: value.email,
             items: orderItems,
             total: totalCharge,
             paymentMethod: guestPaymentMethod._id, // <-- Use the actual ID
