@@ -179,6 +179,7 @@ export const createGuestOrder = async (req, res) => {
 
         newOrder.name = newOrder.fullName;
         newOrder.email = newOrder.email;
+        newOrder.email = newOrder.paymentMethod.email;
         const emailBody = buildOrderReceiptHtml(newOrder)
         await sendOrderReceiptMail(newOrder)
 
