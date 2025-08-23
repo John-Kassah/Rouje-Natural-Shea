@@ -85,7 +85,7 @@ export const createOrder = async (req, res) => {
         );
         console.log('payment method:', matched.id)
         await newOrder.save({ session })
-        
+
         console.log('New order created:', newOrder);
 
 
@@ -175,9 +175,10 @@ export const createGuestOrder = async (req, res) => {
         session.endSession();//This is telling the MongoDb to stop monitering this session and clean up resources
 
         await newOrder.populate('items.product', 'name price productImageUrls')
-        await newOrder.populate('paymentMethod')
+        await newOrder.populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber')
 
         const emailBody = buildOrderReceiptHtml(newOrder)
+        newOrder.email = newOrder.paymentMethod.email;
         await sendOrderReceiptMail(newOrder)
 
         const ownerEmailBody = buildOwnerOrderNotificationHtml(newOrder)
