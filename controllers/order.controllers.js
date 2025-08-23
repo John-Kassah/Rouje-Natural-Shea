@@ -178,7 +178,8 @@ export const createGuestOrder = async (req, res) => {
         await newOrder.populate('paymentMethod', 'fullName email phone address city paymentMethod phoneNumber')
 
         const emailBody = buildOrderReceiptHtml(newOrder)
-        newOrder.email = newOrder.paymentMethod.email;
+        newOrder.name = newOrder.fullName;
+        newOrder.email = newOrder.email;
         await sendOrderReceiptMail(newOrder)
 
         const ownerEmailBody = buildOwnerOrderNotificationHtml(newOrder)
