@@ -6,6 +6,6 @@ import { initializePayment } from "../utils/initializeAPayment.js";
 
 const initializePaymentRouter = new express.Router();
 
-initializePaymentRouter.post("/initializePayment", authenticator, initializePayment);
+initializePaymentRouter.post("/initializePayment", initializePayment);
 
 export default initializePaymentRouter;

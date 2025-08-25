@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const initializePayment = async (req, res) => {
-  const email = req.user.email;
-  const { amount } = req.body;
+  const email = req.body.email;
+  const amount = req.body.total;
   const positiveIntAmount = Number(amount);
 
   if ( positiveIntAmount <= 0) {
@@ -14,6 +14,7 @@ export const initializePayment = async (req, res) => {
       message: "Amount must be a greater than 0."
     });
   }
+  console.log(`Initializing payment for ${email} with amount ${amount}`);
 
   const params = JSON.stringify({
     email,
