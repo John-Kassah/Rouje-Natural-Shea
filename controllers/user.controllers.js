@@ -83,10 +83,10 @@ export const registerUser = async (req, res) => {
         // If the validation passes, proceed to extract the user info from the request body
 
         // Extract the user info(email and password and more) from the request body
-        const reqUserInfo = req.body;
+        const reqUserInfo = value;
 
         // Extract userName from the request body for testing purposes
-        const { fullName } = req.body;
+        const { fullName } = value;
         console.log(`fullName: ${fullName}`)
 
         const token = crypto.randomBytes(32).toString('hex'); // Generate a random token for email verification
@@ -97,6 +97,8 @@ export const registerUser = async (req, res) => {
         const modelUser = new userModel(reqUserInfo);
 
         // Check if the user already exists using the interface method *findOne* thats made possible by the userModel interface we created in the user.model.js file
+        const { email } = value;
+        console.log(`fullName: ${email}`)
         if (await userModel.findOne({
             $or: [
                 { fullName: value.fullName },
@@ -118,7 +120,7 @@ export const registerUser = async (req, res) => {
         await modelUser.save();
 
         // now send a verification email to the user using the sendVerificationMail function we created in the mailSender.js file
-        await sendVerificationMail(modelUser.email, token, res);
+        await sendVerificationMail(reqUserInfo.email, token, res);
         // The sendVerificationMail function will send a verification email to the user with a link to verify their email address. The link will contain the token that was generated when the user registered, in its query.
 
         // Generate a JWT token for the user so as they are logged in right after registration, they can access authentication protected routes
