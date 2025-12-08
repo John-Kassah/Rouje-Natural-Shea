@@ -25,7 +25,7 @@ const productSchema = new mongoose.Schema({
     },
     newArrival:{
         type: Boolean,
-        default: 'false'
+        default: 'false' 
     },
     productImageUrls: [{
         type: String
